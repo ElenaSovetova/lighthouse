@@ -1,38 +1,75 @@
-Role Name
+Ansible-Role Lighthouse for CentOS 7
 =========
 
-A brief description of the role goes here.
+Роль устанавливает Lighthouse на CentOS 7.
 
 Requirements
 ------------
-
+нет
 Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Переменные прописаны в  файле vars/main.yml и vars/main.yml
+![image](https://user-images.githubusercontent.com/91061820/224510063-08fc6df4-7fb9-4775-b022-247cff963e49.png)
+![image](https://user-images.githubusercontent.com/91061820/224510092-790bffdf-6a31-4a16-88c9-a6941b55b1f4.png)
+
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+Потребуется так же установить Git и NGINX.
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+---
+- name: Install nginx
+  hosts: lighthouse
+  handlers:
+    - name: start-nginx
+      become: true
+      command: nginx
+    - name: reload-nginx
+      become: true
+      command: nginx -s reload
+  tasks:
+    - name: NGINX Install epel-release
+      become: true
+      ansible.builtin.yum:
+        name: epel-release
+        state: present
+      tags: nginx
+    - name: NGINX | Install NGINX
+      become: true
+      ansible.builtin.yum:
+        name: nginx
+        state: present
+      notify: start-nginx
+      tags: nginx
+    - name: NGINX Create general config
+      become: true
+      template:
+        src: templates/nginx.conf.j2
+        dest: /etc/nginx/nginx.conf
+        mode: 0644
+      notify: reload-nginx
+      tags: nginx
+- name: Install lighthouse
+  hosts: lighthouse
+  pre_tasks:
+    - name: Lighthouse | install dependencies
+      become: true
+      ansible.builtin.yum:
+        name: git
+        state: present
+  roles: 
+    - lighthouse
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
 
-License
--------
-
-BSD
 
 Author Information
 ------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Elena Sovetova :)
