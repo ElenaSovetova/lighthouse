@@ -24,7 +24,7 @@ Dependencies
 
 Example Playbook
 ----------------
-
+```
 ---
 - name: Install nginx
   hosts: lighthouse
@@ -67,7 +67,7 @@ Example Playbook
         state: present
   roles: 
     - lighthouse
-
+```
 
 
 Author Information
